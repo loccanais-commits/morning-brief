@@ -1,26 +1,18 @@
-/**
- * Storage Service - Multi-Category System
- * 
- * Estrutura:
- * - data/briefings/2026-01-11.json (briefing completo com categories)
- * - public/audio/2026-01-11-full.mp3 (resumo completo 5 min)
- * - public/audio/2026-01-11-china.mp3 (category brief 1-2 min)
- * - public/audio/2026-01-11-russia.mp3
- * - etc.
- */
+// Storage usando Supabase (funciona no Vercel serverless)
+import { createClient } from "@supabase/supabase-js";
 
-import { promises as fs } from "fs";
-import path from "path";
-import { CategoryName } from "./news-api";
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-// === TIPOS ===
+const supabase = createClient(supabaseUrl, supabaseKey);
 
+// Tipos
 export interface NewsStory {
   id: string;
   uuid: string;
   title: string;
   summary: string;
-  category: CategoryName;
+  category: string;
   categoryDisplay: string;
   source: string;
   sourceUrl: string;
@@ -29,7 +21,7 @@ export interface NewsStory {
 }
 
 export interface CategoryBriefData {
-  category: CategoryName;
+  category: string;
   displayName: string;
   emoji: string;
   headline: string;
@@ -43,8 +35,6 @@ export interface CategoryBriefData {
 export interface DailyBriefing {
   date: string;
   generatedAt: string;
-  
-  // Resumo COMPLETO (5 min - ElevenLabs)
   fullBriefing: {
     headline: string;
     script: string;
@@ -52,183 +42,132 @@ export interface DailyBriefing {
     duration: string;
     storyCount: number;
   };
-  
-  // Resumos por CATEGORIA (1-2 min cada - Polly)
   categoryBriefs: CategoryBriefData[];
-  
-  // Todas as notícias
   stories: NewsStory[];
-  
-  // Metadados
   meta: {
     totalStories: number;
-    categoryCounts: Record<CategoryName, number>;
+    categoryCounts: Record<string, number>;
     topSources: string[];
+  };
+  // Backwards compatibility
+  dailySummary?: {
+    title: string;
+    audioUrl?: string;
+    duration: string;
   };
 }
 
-// === PATHS ===
-
-const DATA_DIR = path.join(process.cwd(), "data", "briefings");
-const AUDIO_DIR = path.join(process.cwd(), "public", "audio");
-
-// === FUNÇÕES ===
-
-/**
- * Garante que diretórios existem
- */
-async function ensureDirectories(): Promise<void> {
-  await fs.mkdir(DATA_DIR, { recursive: true });
-  await fs.mkdir(AUDIO_DIR, { recursive: true });
+// Função para obter a data de hoje no formato YYYY-MM-DD
+export function getTodayDate(): string {
+  return new Date().toISOString().split("T")[0];
 }
 
-/**
- * Gera nome do arquivo para uma data
- */
-function getFilePath(date: string): string {
-  return path.join(DATA_DIR, `${date}.json`);
-}
-
-/**
- * Salva briefing do dia
- */
+// Salvar briefing no Supabase
 export async function saveDailyBriefing(briefing: DailyBriefing): Promise<void> {
-  await ensureDirectories();
+  const { error } = await supabase
+    .from("briefings")
+    .upsert({
+      date: briefing.date,
+      data: briefing,
+      generated_at: briefing.generatedAt,
+    }, {
+      onConflict: "date"
+    });
+
+  if (error) {
+    console.error("Error saving briefing to Supabase:", error);
+    throw new Error(`Failed to save briefing: ${error.message}`);
+  }
   
-  const filePath = getFilePath(briefing.date);
-  await fs.writeFile(filePath, JSON.stringify(briefing, null, 2));
-  
-  console.log(`[Storage] Saved briefing for ${briefing.date}`);
-  
-  // Limpar arquivos antigos (mais de 30 dias)
-  await cleanupOldFiles();
+  console.log(`✅ Briefing saved to Supabase for ${briefing.date}`);
 }
 
-/**
- * Carrega briefing de uma data
- */
-export async function getBriefing(date: string): Promise<DailyBriefing | null> {
-  await ensureDirectories();
+// Carregar briefing do Supabase
+export async function loadDailyBriefing(date?: string): Promise<DailyBriefing | null> {
+  const targetDate = date || getTodayDate();
   
-  try {
-    const filePath = getFilePath(date);
-    const data = await fs.readFile(filePath, "utf-8");
-    return JSON.parse(data);
-  } catch {
+  const { data, error } = await supabase
+    .from("briefings")
+    .select("data")
+    .eq("date", targetDate)
+    .single();
+
+  if (error) {
+    if (error.code === "PGRST116") {
+      // Not found
+      return null;
+    }
+    console.error("Error loading briefing:", error);
     return null;
   }
+
+  return data?.data as DailyBriefing;
 }
 
-/**
- * Carrega briefing de hoje
- */
-export async function getTodayBriefing(): Promise<DailyBriefing | null> {
-  const today = new Date().toISOString().split("T")[0];
-  return getBriefing(today);
-}
-
-/**
- * Lista todas as datas disponíveis
- */
-export async function listAvailableDates(): Promise<string[]> {
-  await ensureDirectories();
-  
-  try {
-    const files = await fs.readdir(DATA_DIR);
-    return files
-      .filter(f => f.endsWith(".json"))
-      .map(f => f.replace(".json", ""))
-      .sort((a, b) => b.localeCompare(a)); // Mais recente primeiro
-  } catch {
-    return [];
-  }
-}
-
-/**
- * Retorna resumo do histórico
- */
-export async function getHistorySummary(): Promise<Array<{
+// Listar todos os briefings disponíveis
+export async function listAvailableBriefings(): Promise<Array<{
   date: string;
-  storyCount: number;
-  duration: string;
   headline: string;
+  storyCount: number;
+  duration?: string;
   categoryCount: number;
 }>> {
-  const dates = await listAvailableDates();
-  const summaries = [];
-  
-  for (const date of dates.slice(0, 14)) { // Últimos 14 dias
-    const briefing = await getBriefing(date);
-    if (briefing) {
-      summaries.push({
-        date: briefing.date,
-        storyCount: briefing.meta.totalStories,
-        duration: briefing.fullBriefing?.duration || "0:00",
-        headline: briefing.fullBriefing?.headline || "Daily Briefing",
-        categoryCount: briefing.categoryBriefs?.length || 0,
-      });
-    }
+  const { data, error } = await supabase
+    .from("briefings")
+    .select("date, data")
+    .order("date", { ascending: false })
+    .limit(30);
+
+  if (error) {
+    console.error("Error listing briefings:", error);
+    return [];
   }
-  
-  return summaries;
+
+  return (data || []).map((row) => {
+    const briefing = row.data as DailyBriefing;
+    return {
+      date: row.date,
+      headline: briefing?.fullBriefing?.headline || briefing?.dailySummary?.title || "Daily Briefing",
+      storyCount: briefing?.meta?.totalStories || briefing?.stories?.length || 0,
+      duration: briefing?.fullBriefing?.duration || briefing?.dailySummary?.duration,
+      categoryCount: briefing?.categoryBriefs?.length || 0,
+    };
+  });
 }
 
-/**
- * Salva arquivo de áudio
- */
-export async function saveAudioFile(filename: string, buffer: Buffer): Promise<string> {
-  await ensureDirectories();
+// Upload de áudio para Supabase Storage
+export async function uploadAudio(
+  fileName: string,
+  audioBuffer: Buffer
+): Promise<string> {
+  const bucketName = "audio";
   
-  const filePath = path.join(AUDIO_DIR, filename);
-  await fs.writeFile(filePath, buffer);
-  
-  const publicUrl = `/audio/${filename}`;
-  console.log(`[Storage] Saved audio: ${publicUrl}`);
-  
-  return publicUrl;
+  // Upload do arquivo
+  const { data, error } = await supabase.storage
+    .from(bucketName)
+    .upload(fileName, audioBuffer, {
+      contentType: "audio/mpeg",
+      upsert: true,
+    });
+
+  if (error) {
+    console.error("Error uploading audio:", error);
+    throw new Error(`Failed to upload audio: ${error.message}`);
+  }
+
+  // Retorna a URL pública
+  const { data: urlData } = supabase.storage
+    .from(bucketName)
+    .getPublicUrl(fileName);
+
+  console.log(`✅ Audio uploaded: ${urlData.publicUrl}`);
+  return urlData.publicUrl;
 }
 
-/**
- * Limpa arquivos com mais de 30 dias
- */
-async function cleanupOldFiles(): Promise<void> {
-  const thirtyDaysAgo = new Date();
-  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-  const cutoffDate = thirtyDaysAgo.toISOString().split("T")[0];
-  
-  // Limpar JSONs
-  try {
-    const jsonFiles = await fs.readdir(DATA_DIR);
-    for (const file of jsonFiles) {
-      const date = file.replace(".json", "");
-      if (date < cutoffDate) {
-        await fs.unlink(path.join(DATA_DIR, file));
-        console.log(`[Storage] Deleted old briefing: ${file}`);
-      }
-    }
-  } catch (e) {
-    console.error("[Storage] Error cleaning JSON files:", e);
-  }
-  
-  // Limpar áudios
-  try {
-    const audioFiles = await fs.readdir(AUDIO_DIR);
-    for (const file of audioFiles) {
-      const match = file.match(/^(\d{4}-\d{2}-\d{2})/);
-      if (match && match[1] < cutoffDate) {
-        await fs.unlink(path.join(AUDIO_DIR, file));
-        console.log(`[Storage] Deleted old audio: ${file}`);
-      }
-    }
-  } catch (e) {
-    console.error("[Storage] Error cleaning audio files:", e);
-  }
-}
-
-/**
- * Verifica se já existe briefing para hoje
- */
-export async function hasTodayBriefing(): Promise<boolean> {
-  const briefing = await getTodayBriefing();
-  return briefing !== null;
+// Alias para manter compatibilidade com código existente
+export async function saveAudioFile(
+  fileName: string,
+  audioBuffer: Buffer
+): Promise<string> {
+  return uploadAudio(fileName, audioBuffer);
 }

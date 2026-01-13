@@ -62,12 +62,12 @@ function getGreeting(): string {
 // Cores das categorias
 function getCategoryColor(category: string): string {
   const colors: Record<string, string> = {
-    china: "#EF4444",     // Red
-    russia: "#3B82F6",    // Blue
-    middleeast: "#F59E0B", // Amber
-    economy: "#10B981",   // Green
-    defense: "#6366F1",   // Indigo
-    technology: "#8B5CF6", // Purple
+    china: "#EF4444",
+    russia: "#3B82F6",
+    middleeast: "#F59E0B",
+    economy: "#10B981",
+    defense: "#6366F1",
+    technology: "#8B5CF6",
   };
   return colors[category] || "#6B7280";
 }
@@ -153,7 +153,6 @@ export default function HomePage() {
       const data = await res.json();
       
       if (data.success) {
-        // Recarregar briefing
         const briefingRes = await fetch("/api/briefings");
         const briefingData = await briefingRes.json();
         
@@ -263,7 +262,7 @@ export default function HomePage() {
     );
   }
 
-  // Empty State
+  // Empty State - COM LOGO PNG
   if (!briefing) {
     return (
       <div className="relative min-h-screen">
@@ -288,11 +287,12 @@ export default function HomePage() {
           </div>
 
           <div className="card p-12 text-center max-w-lg mx-auto">
-            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-secondary)] flex items-center justify-center mx-auto mb-6">
-              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" className="text-black">
-                <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" fill="currentColor"/>
-              </svg>
-            </div>
+            {/* LOGO PNG */}
+            <img 
+              src="/icons/logo.png" 
+              alt="Morning Brief" 
+              className="w-20 h-20 rounded-2xl mx-auto mb-6"
+            />
             
             <h2 className="text-2xl font-bold text-white mb-3">No briefing yet today</h2>
             <p className="text-[var(--text-secondary)] mb-8">
@@ -333,7 +333,7 @@ export default function HomePage() {
     ? briefing.stories.filter(s => s.category === selectedCategory)
     : briefing.stories;
 
-  // Limit stories shown (5 by default, all if showAllStories is true)
+  // Limit stories shown
   const visibleStories = showAllStories ? displayStories : displayStories.slice(0, 5);
   const hasMoreStories = displayStories.length > 5;
 
@@ -358,7 +358,7 @@ export default function HomePage() {
           </button>
         </div>
 
-        {/* Hero - 50% larger */}
+        {/* Hero */}
         <div className="relative text-center mb-8">
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden -z-10">
             <span className="text-[12rem] md:text-[20rem] font-black text-white/[0.03] select-none whitespace-nowrap">
@@ -511,7 +511,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Stories - Limited to 5 with "Show More" */}
+        {/* Stories */}
         <section>
           <div className="flex items-center justify-between mb-4">
             <span className="section-label">
@@ -529,7 +529,6 @@ export default function HomePage() {
                 key={story.id}
                 story={{
                   ...story,
-                  // Adicionar data formatada
                   formattedDate: formatStoryDate(story.publishedAt),
                 }}
                 index={index}

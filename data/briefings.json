@@ -1,0 +1,186 @@
+[
+  {
+    "date": "2026-01-12",
+    "generatedAt": "2026-01-12T00:18:24.512Z",
+    "totalDuration": "2:43",
+    "briefings": [
+      {
+        "id": "2026-01-12-1",
+        "title": "US Increases Military Support for Ukraine Amid Russia Tensions",
+        "summary": "The Biden administration announced an additional $200 million in military aid to Ukraine as tensions with Russia escalate. This comes as Secretary of State Antony Blinken visits Kyiv to show support for Ukraine's sovereignty and territorial integrity. The aid package includes equipment and resources to bolster Ukraine's defensive capabilities. This marks the latest effort by the US to support its ally amid concerns over a potential Russian invasion. The White House has warned of severe economic consequences for Russia if it further invades Ukraine.",
+        "category": "Defense",
+        "duration": "0:34",
+        "audioUrl": "/audio/2026-01-12-1.mp3",
+        "sources": [
+          {
+            "name": "ft.com",
+            "url": "https://www.ft.com/content/4af3a215-33cf-40eb-8b41-a5a8864a7303"
+          }
+        ],
+        "publishedAt": "2026-01-12T00:18:21.525Z",
+        "outlook": "The situation remains highly volatile, with the potential for further military posturing or escalation between Russia and Ukraine in the coming weeks.",
+        "createdAt": "2026-01-12T00:18:21.525Z"
+      },
+      {
+        "id": "2026-01-12-2",
+        "title": "Biden Administration Limits Asylum for Migrants at Southern Border",
+        "summary": "The Biden administration announced a new policy that will generally deny asylum to migrants who arrive at the U.S. southern border without first seeking protection in a country they passed through. This new rule aims to discourage migrants from making the dangerous journey to the border. The policy includes some exceptions, such as for victims of human trafficking. Critics argue it unfairly limits asylum access, while supporters say it's a necessary step to manage the border crisis.",
+        "category": "Immigration",
+        "duration": "0:31",
+        "audioUrl": "/audio/2026-01-12-2.mp3",
+        "sources": [
+          {
+            "name": "ft.com",
+            "url": "https://www.ft.com/content/4e2d5bb7-e4d5-4b98-b1a8-895c0d493b07"
+          }
+        ],
+        "publishedAt": "2026-01-12T00:18:22.218Z",
+        "outlook": "The new asylum rule is expected to face legal challenges from immigrant advocacy groups, which could determine its ultimate impact.",
+        "createdAt": "2026-01-12T00:18:22.218Z"
+      },
+      {
+        "id": "2026-01-12-3",
+        "title": "Russia Demands US, NATO Response on Ukraine by Next Week",
+        "summary": "Russia has firmly reiterated its insistence that NATO not expand eastward, despite NATO's rejection of this demand. Russian Foreign Minister Sergey Lavrov said Russia is awaiting a written response from the US and NATO next week to its security proposals, which include a ban on Ukraine joining NATO. Lavrov warned that Russia will respond, including with military-technical measures, if the West refuses to meet its demands. The standoff over Ukraine has led to heightened tensions between Russia and the West, raising concerns about a potential military conflict.",
+        "category": "Russia",
+        "duration": "0:35",
+        "audioUrl": "/audio/2026-01-12-3.mp3",
+        "sources": [
+          {
+            "name": "apnews.com",
+            "url": "https://apnews.com/article/europe-russia-ukraine-moscow-sergey-lavrov-9b6c7c17bd462c02cfb9420463057188"
+          }
+        ],
+        "publishedAt": "2026-01-12T00:18:23.015Z",
+        "outlook": "Russia is expected to respond forcefully if the US and NATO do not meet its security demands regarding Ukraine by next week.",
+        "createdAt": "2026-01-12T00:18:23.015Z"
+      },
+      {
+        "id": "2026-01-12-4",
+        "title": "Ukraine Takes Major Step Toward EU Membership Amid War",
+        "summary": "Ukraine has been granted candidate status by the European Union, a major milestone in its path to joining the bloc. This represents a significant boost for the war-torn country and a strong rebuke to Russia's President Vladimir Putin, who has sought to keep Ukraine within Moscow's sphere of influence. The decision acknowledges Ukraine's progress on reforms and commitment to European values, despite the ongoing Russian invasion. While the accession process remains lengthy, this development signals the EU's support for Ukraine's Western orientation and desire for greater integration with European institutions.",
+        "category": "Europe",
+        "duration": "0:36",
+        "audioUrl": "/audio/2026-01-12-4.mp3",
+        "sources": [
+          {
+            "name": "apnews.com",
+            "url": "https://apnews.com/article/us-tariffs-trump-asia-china-europe-2c40881f1fe8f04624100c12d8d05296"
+          }
+        ],
+        "publishedAt": "2026-01-12T00:18:23.817Z",
+        "outlook": "With candidate status secured, Ukraine will now begin formal membership negotiations with the EU, a process that could take years to complete.",
+        "createdAt": "2026-01-12T00:18:23.817Z"
+      },
+      {
+        "id": "2026-01-12-5",
+        "title": "Pentagon to Send $300 Million in Weapons to Ukraine Amid Stockpile Concerns",
+        "summary": "The White House has announced that the Pentagon will provide an additional $300 million in military aid to Ukraine. This comes as the U.S. struggles to replenish its own weapons stockpiles that have been depleted by prior Ukraine aid packages. The administration says it found cost savings in existing contracts to free up the new funding for Kyiv, though concerns remain about the impact on American military readiness.",
+        "category": "Defense",
+        "duration": "0:27",
+        "audioUrl": "/audio/2026-01-12-5.mp3",
+        "sources": [
+          {
+            "name": "ft.com",
+            "url": "https://www.ft.com/content/0b0bd512-8ab4-4345-81c3-853f1e7f5d5b"
+          }
+        ],
+        "publishedAt": "2026-01-12T00:18:24.512Z",
+        "outlook": "Congress may face pressure to appropriate more funds to the Pentagon to help restore U.S. weapons stockpiles in the face of the continuing conflict in Ukraine.",
+        "createdAt": "2026-01-12T00:18:24.512Z"
+      }
+    ]
+  },
+  {
+    "date": "2026-01-11",
+    "generatedAt": "2026-01-11T23:32:48.711Z",
+    "totalDuration": "2:42",
+    "briefings": [
+      {
+        "id": "2026-01-11-1",
+        "title": "Russia Demands NATO Response on Ukraine Next Week",
+        "summary": "Russia has reiterated its demand that NATO not expand eastward, despite the alliance rejecting this request. Russian Foreign Minister Sergey Lavrov said Russia expects a written response from the US and NATO next week on its security proposals, which include a ban on Ukraine joining NATO. This follows weeks of tensions on the Russia-Ukraine border, with concerns that Russia may be planning to invade Ukraine. The US and NATO have warned Russia of severe economic and political consequences if it attacks Ukraine, but Russia denies it has such plans.",
+        "category": "Russia",
+        "duration": "0:36",
+        "audioUrl": "/audio/2026-01-11-1.mp3",
+        "sources": [
+          {
+            "name": "ft.com",
+            "url": "https://www.ft.com/content/4af3a215-33cf-40eb-8b41-a5a8864a7303"
+          }
+        ],
+        "publishedAt": "2026-01-11T23:32:45.673Z",
+        "outlook": "Tensions remain high as Russia awaits a formal written response from the US and NATO on its security demands next week, which could further escalate the crisis over Ukraine.",
+        "createdAt": "2026-01-11T23:32:45.673Z"
+      },
+      {
+        "id": "2026-01-11-2",
+        "title": "US Increases Military Aid to Ukraine Amid Russia Tensions",
+        "summary": "The Biden administration is providing an additional $200 million in defensive military aid to Ukraine as tensions with Russia escalate. This comes as U.S. Secretary of State Antony Blinken visits Kyiv to show support for Ukraine's sovereignty and territorial integrity. The aid package includes equipment to help Ukraine defend itself, such as ammunition, anti-armor systems, and air surveillance radars. The move is part of the U.S. strategy to deter a potential Russian invasion of Ukraine by bolstering Ukraine's defenses.",
+        "category": "Defense",
+        "duration": "0:32",
+        "audioUrl": "/audio/2026-01-11-2.mp3",
+        "sources": [
+          {
+            "name": "ft.com",
+            "url": "https://www.ft.com/content/4e2d5bb7-e4d5-4b98-b1a8-895c0d493b07"
+          }
+        ],
+        "publishedAt": "2026-01-11T23:32:46.426Z",
+        "outlook": "Russia's response to the increased U.S. military aid, and whether this will further escalate tensions between the U.S., its allies, and Russia over the Ukraine crisis.",
+        "createdAt": "2026-01-11T23:32:46.426Z"
+      },
+      {
+        "id": "2026-01-11-3",
+        "title": "China Retaliates as World Responds to Higher US Tariffs",
+        "summary": "In response to new U.S. tariff hikes, China has announced its own set of retaliatory tariffs on American goods. This escalating trade war is causing upheaval across global markets and industries. The Trump administration insists the tariffs are necessary to protect American jobs and businesses, while critics argue they will hurt consumers and the broader economy. Countries and companies are now scrambling to adjust their trade strategies amid the unpredictable shifting trade landscape.",
+        "category": "Economy",
+        "duration": "0:29",
+        "audioUrl": "/audio/2026-01-11-3.mp3",
+        "sources": [
+          {
+            "name": "apnews.com",
+            "url": "https://apnews.com/article/europe-russia-ukraine-moscow-sergey-lavrov-9b6c7c17bd462c02cfb9420463057188"
+          }
+        ],
+        "publishedAt": "2026-01-11T23:32:47.158Z",
+        "outlook": "Tensions are likely to continue as both sides dig in, raising concerns about further economic fallout and a prolonged trade dispute.",
+        "createdAt": "2026-01-11T23:32:47.158Z"
+      },
+      {
+        "id": "2026-01-11-4",
+        "title": "Ukraine Granted EU Accession Talks, Signaling Support Amid War",
+        "summary": "Ukraine has been given the go-ahead to begin accelerated talks on joining the European Union. This is a major boost for the war-torn country and a strong rebuke to Russia's President Vladimir Putin, who had sought to prevent Ukraine from aligning with the West. The EU's decision underscores its continued support for Ukraine in the face of the Russian invasion. While the accession process remains lengthy, this marks an important symbolic and political victory for Ukraine as it battles to defend its sovereignty and democracy.",
+        "category": "Europe",
+        "duration": "0:34",
+        "audioUrl": "/audio/2026-01-11-4.mp3",
+        "sources": [
+          {
+            "name": "apnews.com",
+            "url": "https://apnews.com/article/us-tariffs-trump-asia-china-europe-2c40881f1fe8f04624100c12d8d05296"
+          }
+        ],
+        "publishedAt": "2026-01-11T23:32:47.981Z",
+        "outlook": "The EU's decision will likely embolden Ukraine in its fight against Russia, while increasing tensions between Ukraine and its eastern neighbor. Continued progress on EU integration will be a key issue to monitor going forward.",
+        "createdAt": "2026-01-11T23:32:47.981Z"
+      },
+      {
+        "id": "2026-01-11-5",
+        "title": "Russia Bolsters Troop Presence on Belarus Border Amid Ukraine Tensions",
+        "summary": "Russia is deploying an unspecified number of troops from its eastern regions to Belarus for major military exercises. This move raises concerns about a potential invasion of Ukraine, as Belarus shares a border with Ukraine and has been a key ally of Russia. The Kremlin has amassed over 100,000 troops near Ukraine's borders, sparking fears of an imminent attack. However, Russia denies plans to invade and says the troop buildup is for defensive purposes and training exercises.",
+        "category": "Economy",
+        "duration": "0:31",
+        "audioUrl": "/audio/2026-01-11-5.mp3",
+        "sources": [
+          {
+            "name": "ft.com",
+            "url": "https://www.ft.com/content/0b0bd512-8ab4-4345-81c3-853f1e7f5d5b"
+          }
+        ],
+        "publishedAt": "2026-01-11T23:32:48.710Z",
+        "outlook": "Analysts will closely monitor the Russian troop movements and military exercises in Belarus for any signs of a looming invasion of Ukraine.",
+        "createdAt": "2026-01-11T23:32:48.710Z"
+      }
+    ]
+  }
+]

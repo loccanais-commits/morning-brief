@@ -163,6 +163,12 @@ export async function getHistorySummary(): Promise<Array<{
   return listAvailableBriefings();
 }
 
+// Verificar se já existe briefing hoje
+export async function hasTodayBriefing(): Promise<boolean> {
+  const briefing = await loadDailyBriefing();
+  return briefing !== null;
+}
+
 // ============================================
 // AUDIO STORAGE
 // ============================================

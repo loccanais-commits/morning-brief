@@ -62,6 +62,10 @@ export function getTodayDate(): string {
   return new Date().toISOString().split("T")[0];
 }
 
+// ============================================
+// FUNÇÕES PRINCIPAIS
+// ============================================
+
 // Salvar briefing no Supabase
 export async function saveDailyBriefing(briefing: DailyBriefing): Promise<void> {
   const { error } = await supabase
@@ -94,7 +98,6 @@ export async function loadDailyBriefing(date?: string): Promise<DailyBriefing | 
 
   if (error) {
     if (error.code === "PGRST116") {
-      // Not found
       return null;
     }
     console.error("Error loading briefing:", error);
@@ -135,6 +138,35 @@ export async function listAvailableBriefings(): Promise<Array<{
   });
 }
 
+// ============================================
+// ALIASES PARA COMPATIBILIDADE COM ROUTES
+// ============================================
+
+// Alias: getTodayBriefing -> loadDailyBriefing (sem parâmetro)
+export async function getTodayBriefing(): Promise<DailyBriefing | null> {
+  return loadDailyBriefing();
+}
+
+// Alias: getBriefing -> loadDailyBriefing (com data)
+export async function getBriefing(date: string): Promise<DailyBriefing | null> {
+  return loadDailyBriefing(date);
+}
+
+// Alias: getHistorySummary -> listAvailableBriefings
+export async function getHistorySummary(): Promise<Array<{
+  date: string;
+  headline: string;
+  storyCount: number;
+  duration?: string;
+  categoryCount: number;
+}>> {
+  return listAvailableBriefings();
+}
+
+// ============================================
+// AUDIO STORAGE
+// ============================================
+
 // Upload de áudio para Supabase Storage
 export async function uploadAudio(
   fileName: string,
@@ -142,8 +174,7 @@ export async function uploadAudio(
 ): Promise<string> {
   const bucketName = "audio";
   
-  // Upload do arquivo
-  const { data, error } = await supabase.storage
+  const { error } = await supabase.storage
     .from(bucketName)
     .upload(fileName, audioBuffer, {
       contentType: "audio/mpeg",
@@ -155,7 +186,6 @@ export async function uploadAudio(
     throw new Error(`Failed to upload audio: ${error.message}`);
   }
 
-  // Retorna a URL pública
   const { data: urlData } = supabase.storage
     .from(bucketName)
     .getPublicUrl(fileName);

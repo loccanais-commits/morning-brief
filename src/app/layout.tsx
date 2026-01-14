@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { Analytics } from "@vercel/analytics/next";
 import { PlayerProvider } from "@/contexts/PlayerContext";
 import Header from "@/components/Header";
 import PlayerBar from "@/components/PlayerBar";
@@ -61,6 +62,9 @@ export default function RootLayout({
 
           {/* Global Audio Player Bar */}
           <PlayerBar />
+          
+          {/* Vercel Analytics */}
+          <Analytics />
         </PlayerProvider>
       </body>
     </html>

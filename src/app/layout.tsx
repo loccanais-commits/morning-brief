@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
 import { PlayerProvider } from "@/contexts/PlayerContext";
@@ -41,6 +42,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        {/* Google AdSense */}
+        <Script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7255726305591716"
+          crossOrigin="anonymous"
+          strategy="afterInteractive"
+        />
+        
         <link rel="apple-touch-icon" href="/icons/icon-192.png" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -113,7 +122,7 @@ function Footer() {
                   <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
                 </svg>
               </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-[var(--bg-elevated)] flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card)] transition-all" aria-label="YouTube">
+              <a href="https://www.youtube.com/@VictoriaStoneGlobal" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-[var(--bg-elevated)] flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card)] transition-all" aria-label="YouTube">
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
                 </svg>
@@ -122,8 +131,15 @@ function Footer() {
           </div>
         </div>
         
-        <div className="border-t border-[var(--border-subtle)] mt-8 pt-8 text-center text-sm text-[var(--text-muted)]">
-          <p>© {new Date().getFullYear()} Morning Brief. All rights reserved.</p>
+        {/* Legal Links */}
+        <div className="border-t border-[var(--border-subtle)] mt-8 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="text-sm text-[var(--text-muted)]">
+            © {new Date().getFullYear()} Morning Brief. All rights reserved.
+          </p>
+          <div className="flex gap-6 text-sm text-[var(--text-muted)]">
+            <a href="/privacy" className="hover:text-[var(--text-primary)] transition-colors">Privacy Policy</a>
+            <a href="/terms" className="hover:text-[var(--text-primary)] transition-colors">Terms of Service</a>
+          </div>
         </div>
       </div>
     </footer>

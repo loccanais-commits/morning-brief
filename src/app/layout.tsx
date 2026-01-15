@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { PlayerProvider } from "@/contexts/PlayerContext";
 import Header from "@/components/Header";
 import PlayerBar from "@/components/PlayerBar";
@@ -74,6 +75,9 @@ export default function RootLayout({
           
           {/* Vercel Analytics */}
           <Analytics />
+
+          {/* Vercel Speed Insights */}
+          <SpeedInsights />
         </PlayerProvider>
       </body>
     </html>

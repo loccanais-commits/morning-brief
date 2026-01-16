@@ -44,8 +44,9 @@ export default function PrivacyPage() {
             <p>We use the following third-party services:</p>
             <ul className="list-disc pl-6 space-y-2 mt-2">
               <li><strong>Beehiiv:</strong> Email newsletter delivery</li>
-              <li><strong>Google Analytics:</strong> Website analytics</li>
-              <li><strong>Google AdSense:</strong> Advertising (may use cookies)</li>
+              <li><strong>Google Analytics:</strong> Website analytics and performance tracking</li>
+              <li><strong>Google AdSense:</strong> Advertising (may use cookies for personalized ads)</li>
+              <li><strong>Vercel Analytics:</strong> Website performance and usage analytics</li>
               <li><strong>Supabase:</strong> Data storage</li>
             </ul>
           </section>

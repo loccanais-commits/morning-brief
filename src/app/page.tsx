@@ -26,6 +26,7 @@ interface CategoryBrief {
   displayName: string;
   emoji: string;
   headline: string;
+  script?: string;
   audioUrl?: string;
   storyCount: number;
   estimatedDuration: string;
@@ -105,6 +106,7 @@ export default function HomePage() {
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [showAllStories, setShowAllStories] = useState(false);
+  const [readMode, setReadMode] = useState(false);
 
   // Carregar favoritos
   useEffect(() => {
@@ -358,6 +360,38 @@ export default function HomePage() {
           </button>
         </div>
 
+        {/* Listen/Read Toggle */}
+        <div className="flex justify-center mb-8">
+          <div className="inline-flex bg-[var(--bg-elevated)] rounded-full p-1 border border-[var(--border-subtle)]">
+            <button
+              onClick={() => setReadMode(false)}
+              className={`px-5 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${
+                !readMode
+                  ? "bg-[var(--accent-primary)] text-black"
+                  : "text-[var(--text-secondary)] hover:text-white"
+              }`}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+              </svg>
+              Listen
+            </button>
+            <button
+              onClick={() => setReadMode(true)}
+              className={`px-5 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${
+                readMode
+                  ? "bg-[var(--accent-primary)] text-black"
+                  : "text-[var(--text-secondary)] hover:text-white"
+              }`}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1zm0 13.5c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V8c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5v11.5z"/>
+              </svg>
+              Read
+            </button>
+          </div>
+        </div>
+
         {/* Hero */}
         <div className="relative text-center mb-8">
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden -z-10">
@@ -377,105 +411,199 @@ export default function HomePage() {
         {/* Full Briefing Card */}
         <section className="card p-6 md:p-8 mb-8 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-[var(--accent-primary)]/10 to-transparent pointer-events-none" />
-          
-          <div className="relative flex flex-col md:flex-row items-center gap-6">
-            <button
-              onClick={handlePlayFull}
-              disabled={!briefing.fullBriefing?.audioUrl}
-              className="w-24 h-24 md:w-32 md:h-32 rounded-full bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-secondary)] flex items-center justify-center hover:scale-105 transition-transform disabled:opacity-50 flex-shrink-0 shadow-2xl shadow-[var(--accent-primary)]/30"
-            >
-              {isFullPlaying ? (
-                <svg className="w-12 h-12 text-black" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
-                </svg>
-              ) : (
-                <svg className="w-12 h-12 text-black ml-2" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M8 5v14l11-7z"/>
-                </svg>
-              )}
-            </button>
 
-            <div className="flex-1 text-center md:text-left">
-              <span className="inline-block px-3 py-1 bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] text-xs font-bold uppercase tracking-wider rounded-full mb-3">
-                {isFullPlaying ? "Now Playing" : "Full Briefing"}
-              </span>
-              
-              <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
+          {!readMode ? (
+            /* Audio Mode */
+            <div className="relative flex flex-col md:flex-row items-center gap-6">
+              <button
+                onClick={handlePlayFull}
+                disabled={!briefing.fullBriefing?.audioUrl}
+                className="w-24 h-24 md:w-32 md:h-32 rounded-full bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-secondary)] flex items-center justify-center hover:scale-105 transition-transform disabled:opacity-50 flex-shrink-0 shadow-2xl shadow-[var(--accent-primary)]/30"
+              >
+                {isFullPlaying ? (
+                  <svg className="w-12 h-12 text-black" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+                  </svg>
+                ) : (
+                  <svg className="w-12 h-12 text-black ml-2" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z"/>
+                  </svg>
+                )}
+              </button>
+
+              <div className="flex-1 text-center md:text-left">
+                <span className="inline-block px-3 py-1 bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] text-xs font-bold uppercase tracking-wider rounded-full mb-3">
+                  {isFullPlaying ? "Now Playing" : "Full Briefing"}
+                </span>
+
+                <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
+                  {briefing.fullBriefing.headline}
+                </h2>
+
+                <p className="text-[var(--text-secondary)] mb-3">
+                  {briefing.meta.totalStories} stories • {briefing.fullBriefing.duration} minutes • All categories
+                </p>
+
+                <div className="flex flex-wrap gap-2 justify-center md:justify-start">
+                  {briefing.categoryBriefs.map(cb => (
+                    <span key={cb.category} className="text-lg">
+                      {cb.emoji}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : (
+            /* Read Mode */
+            <div className="relative">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="inline-block px-3 py-1 bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] text-xs font-bold uppercase tracking-wider rounded-full">
+                  Full Briefing
+                </span>
+                <span className="text-sm text-[var(--text-muted)]">
+                  ~{Math.ceil((briefing.fullBriefing.script?.length || 0) / 1000)} min read
+                </span>
+              </div>
+
+              <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
                 {briefing.fullBriefing.headline}
               </h2>
-              
-              <p className="text-[var(--text-secondary)] mb-3">
-                {briefing.meta.totalStories} stories • {briefing.fullBriefing.duration} minutes • All categories
-              </p>
-              
-              <div className="flex flex-wrap gap-2 justify-center md:justify-start">
+
+              <div className="flex flex-wrap gap-2 mb-6">
                 {briefing.categoryBriefs.map(cb => (
                   <span key={cb.category} className="text-lg">
                     {cb.emoji}
                   </span>
                 ))}
               </div>
+
+              {briefing.fullBriefing.script ? (
+                <div className="prose prose-invert max-w-none">
+                  <p className="text-[var(--text-secondary)] leading-relaxed whitespace-pre-line text-lg">
+                    {briefing.fullBriefing.script}
+                  </p>
+                </div>
+              ) : (
+                <p className="text-[var(--text-muted)] italic">
+                  Text not available for this briefing.
+                </p>
+              )}
             </div>
-          </div>
+          )}
         </section>
 
         {/* Category Briefs Grid */}
         <section className="mb-10">
           <div className="flex items-center justify-between mb-4">
             <span className="section-label">Category Briefs</span>
-            <span className="text-sm text-[var(--text-muted)]">1-2 min each</span>
+            <span className="text-sm text-[var(--text-muted)]">{readMode ? "Click to expand" : "1-2 min each"}</span>
           </div>
-          
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {briefing.categoryBriefs.map(cb => {
-              const isCategoryPlaying = currentTrack?.id === `${cb.category}-${briefing.date}` && isPlaying;
-              const color = getCategoryColor(cb.category);
-              
-              return (
-                <button
-                  key={cb.category}
-                  onClick={() => handlePlayCategory(cb)}
-                  disabled={!cb.audioUrl}
-                  className="card p-4 text-left hover:border-white/20 transition-all group disabled:opacity-50"
-                  style={{ borderColor: isCategoryPlaying ? color : undefined }}
-                >
-                  <div className="flex items-start justify-between mb-2">
-                    <span className="text-2xl">{cb.emoji}</span>
-                    {cb.audioUrl && (
-                      <div 
-                        className="w-8 h-8 rounded-full flex items-center justify-center transition-colors"
-                        style={{ backgroundColor: `${color}20` }}
-                      >
-                        {isCategoryPlaying ? (
-                          <svg className="w-4 h-4" fill={color} viewBox="0 0 24 24">
-                            <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+
+          {!readMode ? (
+            /* Audio Mode - Grid of play buttons */
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {briefing.categoryBriefs.map(cb => {
+                const isCategoryPlaying = currentTrack?.id === `${cb.category}-${briefing.date}` && isPlaying;
+                const color = getCategoryColor(cb.category);
+
+                return (
+                  <button
+                    key={cb.category}
+                    onClick={() => handlePlayCategory(cb)}
+                    disabled={!cb.audioUrl}
+                    className="card p-4 text-left hover:border-white/20 transition-all group disabled:opacity-50"
+                    style={{ borderColor: isCategoryPlaying ? color : undefined }}
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <span className="text-2xl">{cb.emoji}</span>
+                      {cb.audioUrl && (
+                        <div
+                          className="w-8 h-8 rounded-full flex items-center justify-center transition-colors"
+                          style={{ backgroundColor: `${color}20` }}
+                        >
+                          {isCategoryPlaying ? (
+                            <svg className="w-4 h-4" fill={color} viewBox="0 0 24 24">
+                              <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+                            </svg>
+                          ) : (
+                            <svg className="w-4 h-4 ml-0.5" fill={color} viewBox="0 0 24 24">
+                              <path d="M8 5v14l11-7z"/>
+                            </svg>
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                    <h3 className="font-semibold text-white text-sm mb-1">
+                      {cb.displayName}
+                    </h3>
+
+                    <p className="text-xs text-[var(--text-muted)] line-clamp-1 mb-2">
+                      {cb.headline}
+                    </p>
+
+                    <div className="flex items-center gap-2 text-xs text-[var(--text-muted)]">
+                      <span>{cb.storyCount} stories</span>
+                      <span>•</span>
+                      <span>{cb.estimatedDuration}</span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          ) : (
+            /* Read Mode - Expandable text cards */
+            <div className="space-y-4">
+              {briefing.categoryBriefs.map(cb => {
+                const color = getCategoryColor(cb.category);
+
+                return (
+                  <details
+                    key={cb.category}
+                    className="card group"
+                  >
+                    <summary
+                      className="p-4 cursor-pointer list-none hover:bg-[var(--bg-elevated)]/50 transition-colors"
+                      style={{ borderLeftColor: color, borderLeftWidth: '4px' }}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <span className="text-2xl">{cb.emoji}</span>
+                          <div>
+                            <h3 className="font-semibold text-white">
+                              {cb.displayName}
+                            </h3>
+                            <p className="text-sm text-[var(--text-muted)]">
+                              {cb.headline}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className="text-xs text-[var(--text-muted)]">
+                            {cb.storyCount} stories • ~{Math.ceil((cb.script?.length || 0) / 1000)} min read
+                          </span>
+                          <svg className="w-5 h-5 text-[var(--text-muted)] group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                           </svg>
-                        ) : (
-                          <svg className="w-4 h-4 ml-0.5" fill={color} viewBox="0 0 24 24">
-                            <path d="M8 5v14l11-7z"/>
-                          </svg>
-                        )}
+                        </div>
                       </div>
-                    )}
-                  </div>
-                  
-                  <h3 className="font-semibold text-white text-sm mb-1">
-                    {cb.displayName}
-                  </h3>
-                  
-                  <p className="text-xs text-[var(--text-muted)] line-clamp-1 mb-2">
-                    {cb.headline}
-                  </p>
-                  
-                  <div className="flex items-center gap-2 text-xs text-[var(--text-muted)]">
-                    <span>{cb.storyCount} stories</span>
-                    <span>•</span>
-                    <span>{cb.estimatedDuration}</span>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
+                    </summary>
+                    <div className="px-4 pb-4 pt-2 border-t border-[var(--border-subtle)]">
+                      {cb.script ? (
+                        <p className="text-[var(--text-secondary)] leading-relaxed whitespace-pre-line">
+                          {cb.script}
+                        </p>
+                      ) : (
+                        <p className="text-[var(--text-muted)] italic">
+                          Text not available for this category.
+                        </p>
+                      )}
+                    </div>
+                  </details>
+                );
+              })}
+            </div>
+          )}
         </section>
 
         {/* Category Filter */}

@@ -24,6 +24,14 @@ interface ExpandableCardProps {
   getCategoryPillClass: (category: string) => string;
 }
 
+// Fallback image for when no image or broken image
+const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&h=400&fit=crop";
+
+// Check if URL is valid (not empty and starts with http)
+function isValidImageUrl(url?: string): boolean {
+  return !!(url && url.trim() !== "" && url.startsWith("http"));
+}
+
 export function ExpandableCard({
   story,
   index,
@@ -32,6 +40,7 @@ export function ExpandableCard({
   getCategoryPillClass,
 }: ExpandableCardProps) {
   const [isActive, setIsActive] = useState(false);
+  const [imageError, setImageError] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const id = useId();
 
@@ -54,8 +63,15 @@ export function ExpandableCard({
 
   useOutsideClick(ref, () => setIsActive(false));
 
-  // Placeholder image if none provided
-  const imageUrl = story.imageUrl || `https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&h=400&fit=crop`;
+  // Use valid image URL or fallback
+  const imageUrl = (!imageError && isValidImageUrl(story.imageUrl))
+    ? story.imageUrl!
+    : FALLBACK_IMAGE;
+
+  // Handle image load error
+  const handleImageError = () => {
+    setImageError(true);
+  };
 
   return (
     <>
@@ -98,6 +114,7 @@ export function ExpandableCard({
                   src={imageUrl}
                   alt={story.title}
                   className="w-full h-64 md:h-80 object-cover"
+                  onError={handleImageError}
                 />
               </motion.div>
 
@@ -200,6 +217,7 @@ export function ExpandableCard({
               src={imageUrl}
               alt={story.title}
               className="w-20 h-20 md:w-24 md:h-24 rounded-xl object-cover"
+              onError={handleImageError}
             />
           </motion.div>
 

@@ -21,6 +21,9 @@ const CRON_SECRET = process.env.CRON_SECRET;
 // Gera o texto do tweet baseado no briefing
 function generateTweetText(briefing: {
   title?: string;
+  fullBriefing?: { headline?: string };
+  categoryBriefs?: Array<{ category: string; displayName?: string; headline?: string; emoji?: string }>;
+  // Formato antigo (fallback)
   categories?: Array<{ id: string; title?: string; headline?: string }>;
 }): string {
   const categoryEmojis: Record<string, string> = {
@@ -34,19 +37,39 @@ function generateTweetText(briefing: {
     tech: "🤖",
   };
 
-  // Pega até 4 headlines das categorias
-  const headlines = (briefing.categories || [])
-    .slice(0, 4)
-    .map((cat) => {
-      const emoji = categoryEmojis[cat.id] || "📰";
-      const headline = cat.title || cat.headline || "";
-      // Trunca headline se muito longa
-      const truncated = headline.length > 45 
-        ? headline.substring(0, 42) + "..." 
-        : headline;
-      return `${emoji} ${truncated}`;
-    })
-    .join("\n");
+  // Pega até 4 headlines das categorias (novo formato: categoryBriefs)
+  let headlines = "";
+
+  if (briefing.categoryBriefs && briefing.categoryBriefs.length > 0) {
+    headlines = briefing.categoryBriefs
+      .slice(0, 4)
+      .map((cat) => {
+        const emoji = cat.emoji || categoryEmojis[cat.category] || "📰";
+        const headline = cat.headline || "";
+        // Trunca headline se muito longa
+        const truncated = headline.length > 45
+          ? headline.substring(0, 42) + "..."
+          : headline;
+        return `${emoji} ${truncated}`;
+      })
+      .join("\n");
+  } else if (briefing.categories && briefing.categories.length > 0) {
+    // Fallback para formato antigo
+    headlines = briefing.categories
+      .slice(0, 4)
+      .map((cat) => {
+        const emoji = categoryEmojis[cat.id] || "📰";
+        const headline = cat.title || cat.headline || "";
+        const truncated = headline.length > 45
+          ? headline.substring(0, 42) + "..."
+          : headline;
+        return `${emoji} ${truncated}`;
+      })
+      .join("\n");
+  }
+
+  // Título do briefing (novo formato usa fullBriefing.headline)
+  const mainTitle = briefing.fullBriefing?.headline || briefing.title || "Today's global news briefing is live.";
 
   if (headlines) {
     return `🌅 Your Morning Brief is ready!
@@ -62,7 +85,7 @@ ${headlines}
   // Fallback se não tiver categorias
   return `🌅 Your Morning Brief is ready!
 
-${briefing.title || "Today's global news briefing is live."}
+${mainTitle}
 
 🎧 Listen now: morningbrief.news
 

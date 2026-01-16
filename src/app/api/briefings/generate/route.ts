@@ -188,6 +188,7 @@ export async function POST(request: Request) {
         categoryBriefs: categoryBriefsWithAudio.map(cb => ({
           category: cb.category,
           displayName: cb.displayName,
+          emoji: cb.emoji,
           headline: cb.headline,
           duration: cb.estimatedDuration,
           storyCount: cb.storyCount,

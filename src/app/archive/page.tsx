@@ -17,6 +17,7 @@ interface CategoryBrief {
   displayName: string;
   emoji: string;
   headline: string;
+  script?: string;
   audioUrl?: string;
   storyCount: number;
   estimatedDuration: string;
@@ -27,6 +28,7 @@ interface FullBriefing {
   generatedAt: string;
   fullBriefing: {
     headline: string;
+    script?: string;
     audioUrl?: string;
     duration: string;
     storyCount: number;
@@ -128,7 +130,8 @@ export default function ArchivePage() {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedBriefing, setSelectedBriefing] = useState<FullBriefing | null>(null);
   const [loadingBriefing, setLoadingBriefing] = useState(false);
-  
+  const [readMode, setReadMode] = useState(false);
+
   // Calendar state
   const today = new Date();
   const [viewYear, setViewYear] = useState(today.getFullYear());
@@ -391,107 +394,209 @@ export default function ArchivePage() {
                   </h3>
                 </div>
 
-                {/* Play Full Button */}
-                {(selectedBriefing.fullBriefing?.audioUrl || selectedBriefing.dailySummary?.audioUrl) && (
-                  <button
-                    onClick={handlePlayFull}
-                    className="w-full flex items-center justify-center gap-3 py-3 md:py-4 px-4 md:px-6 bg-[var(--accent-primary)] hover:bg-[#ffb84d] text-black font-semibold rounded-xl transition-colors"
-                  >
-                    {isFullPlaying ? (
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+                {/* Listen/Read Toggle */}
+                <div className="flex justify-center">
+                  <div className="inline-flex bg-[var(--bg-elevated)] rounded-full p-1 border border-[var(--border-subtle)]">
+                    <button
+                      onClick={() => setReadMode(false)}
+                      className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${
+                        !readMode
+                          ? "bg-[var(--accent-primary)] text-black"
+                          : "text-[var(--text-secondary)] hover:text-white"
+                      }`}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
                       </svg>
-                    ) : (
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M8 5v14l11-7z"/>
+                      Listen
+                    </button>
+                    <button
+                      onClick={() => setReadMode(true)}
+                      className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${
+                        readMode
+                          ? "bg-[var(--accent-primary)] text-black"
+                          : "text-[var(--text-secondary)] hover:text-white"
+                      }`}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1zm0 13.5c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V8c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5v11.5z"/>
                       </svg>
-                    )}
-                    {isFullPlaying ? "Pause" : "Play Full Briefing"}
-                    <span className="text-sm opacity-70">
-                      ({selectedBriefing.fullBriefing?.duration || selectedBriefing.dailySummary?.duration || "2:00"})
-                    </span>
-                  </button>
-                )}
-
-                {/* Stats */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="p-3 bg-[var(--bg-elevated)] rounded-lg text-center">
-                    <p className="text-xl md:text-2xl font-bold text-white">
-                      {selectedBriefing.stories?.length || selectedBriefing.meta?.totalStories || 0}
-                    </p>
-                    <p className="text-xs text-[var(--text-muted)]">Stories</p>
-                  </div>
-                  <div className="p-3 bg-[var(--bg-elevated)] rounded-lg text-center">
-                    <p className="text-xl md:text-2xl font-bold text-white">
-                      {selectedBriefing.fullBriefing?.duration || selectedBriefing.dailySummary?.duration || "2:00"}
-                    </p>
-                    <p className="text-xs text-[var(--text-muted)]">Duration</p>
+                      Read
+                    </button>
                   </div>
                 </div>
 
-                {/* Category Briefs */}
-                {selectedBriefing.categoryBriefs && selectedBriefing.categoryBriefs.length > 0 && (
-                  <div>
-                    <p className="text-sm text-[var(--text-muted)] mb-3">Category Briefs</p>
-                    <div className="grid grid-cols-2 gap-2">
-                      {selectedBriefing.categoryBriefs.map((cb) => {
-                        const isCatPlaying = currentTrack?.id === `${cb.category}-${selectedBriefing.date}` && isPlaying;
-                        const color = getCategoryColor(cb.category);
-                        
-                        return (
-                          <button
-                            key={cb.category}
-                            onClick={() => handlePlayCategory(cb)}
-                            disabled={!cb.audioUrl}
-                            className="p-3 bg-[var(--bg-elevated)] rounded-lg text-left hover:bg-[var(--bg-card)] transition-colors disabled:opacity-50 flex items-center gap-2"
-                            style={{ borderLeft: `3px solid ${color}` }}
-                          >
-                            <div 
-                              className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
-                              style={{ backgroundColor: `${color}20` }}
-                            >
-                              {isCatPlaying ? (
-                                <svg className="w-4 h-4" fill={color} viewBox="0 0 24 24">
-                                  <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
-                                </svg>
-                              ) : (
-                                <svg className="w-4 h-4 ml-0.5" fill={color} viewBox="0 0 24 24">
-                                  <path d="M8 5v14l11-7z"/>
-                                </svg>
-                              )}
-                            </div>
-                            <div className="min-w-0">
-                              <p className="text-sm font-medium text-white truncate">
-                                {cb.emoji} {cb.displayName}
-                              </p>
-                              <p className="text-xs text-[var(--text-muted)]">
-                                {cb.estimatedDuration}
-                              </p>
-                            </div>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
+                {!readMode ? (
+                  /* Listen Mode */
+                  <>
+                    {/* Play Full Button */}
+                    {(selectedBriefing.fullBriefing?.audioUrl || selectedBriefing.dailySummary?.audioUrl) && (
+                      <button
+                        onClick={handlePlayFull}
+                        className="w-full flex items-center justify-center gap-3 py-3 md:py-4 px-4 md:px-6 bg-[var(--accent-primary)] hover:bg-[#ffb84d] text-black font-semibold rounded-xl transition-colors"
+                      >
+                        {isFullPlaying ? (
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+                          </svg>
+                        ) : (
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M8 5v14l11-7z"/>
+                          </svg>
+                        )}
+                        {isFullPlaying ? "Pause" : "Play Full Briefing"}
+                        <span className="text-sm opacity-70">
+                          ({selectedBriefing.fullBriefing?.duration || selectedBriefing.dailySummary?.duration || "2:00"})
+                        </span>
+                      </button>
+                    )}
 
-                {/* Stories Preview */}
-                {selectedBriefing.stories && selectedBriefing.stories.length > 0 && (
-                  <div>
-                    <p className="text-sm text-[var(--text-muted)] mb-2">Headlines</p>
-                    <ul className="space-y-1.5">
-                      {selectedBriefing.stories.slice(0, 5).map((story, i) => (
-                        <li key={i} className="text-sm text-[var(--text-secondary)] truncate">
-                          • {story.title}
-                        </li>
-                      ))}
-                      {selectedBriefing.stories.length > 5 && (
-                        <li className="text-sm text-[var(--text-muted)]">
-                          +{selectedBriefing.stories.length - 5} more stories
-                        </li>
-                      )}
-                    </ul>
-                  </div>
+                    {/* Stats */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="p-3 bg-[var(--bg-elevated)] rounded-lg text-center">
+                        <p className="text-xl md:text-2xl font-bold text-white">
+                          {selectedBriefing.stories?.length || selectedBriefing.meta?.totalStories || 0}
+                        </p>
+                        <p className="text-xs text-[var(--text-muted)]">Stories</p>
+                      </div>
+                      <div className="p-3 bg-[var(--bg-elevated)] rounded-lg text-center">
+                        <p className="text-xl md:text-2xl font-bold text-white">
+                          {selectedBriefing.fullBriefing?.duration || selectedBriefing.dailySummary?.duration || "2:00"}
+                        </p>
+                        <p className="text-xs text-[var(--text-muted)]">Duration</p>
+                      </div>
+                    </div>
+
+                    {/* Category Briefs - Audio Mode */}
+                    {selectedBriefing.categoryBriefs && selectedBriefing.categoryBriefs.length > 0 && (
+                      <div>
+                        <p className="text-sm text-[var(--text-muted)] mb-3">Category Briefs</p>
+                        <div className="grid grid-cols-2 gap-2">
+                          {selectedBriefing.categoryBriefs.map((cb) => {
+                            const isCatPlaying = currentTrack?.id === `${cb.category}-${selectedBriefing.date}` && isPlaying;
+                            const color = getCategoryColor(cb.category);
+
+                            return (
+                              <button
+                                key={cb.category}
+                                onClick={() => handlePlayCategory(cb)}
+                                disabled={!cb.audioUrl}
+                                className="p-3 bg-[var(--bg-elevated)] rounded-lg text-left hover:bg-[var(--bg-card)] transition-colors disabled:opacity-50 flex items-center gap-2"
+                                style={{ borderLeft: `3px solid ${color}` }}
+                              >
+                                <div
+                                  className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+                                  style={{ backgroundColor: `${color}20` }}
+                                >
+                                  {isCatPlaying ? (
+                                    <svg className="w-4 h-4" fill={color} viewBox="0 0 24 24">
+                                      <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+                                    </svg>
+                                  ) : (
+                                    <svg className="w-4 h-4 ml-0.5" fill={color} viewBox="0 0 24 24">
+                                      <path d="M8 5v14l11-7z"/>
+                                    </svg>
+                                  )}
+                                </div>
+                                <div className="min-w-0">
+                                  <p className="text-sm font-medium text-white truncate">
+                                    {cb.emoji} {cb.displayName}
+                                  </p>
+                                  <p className="text-xs text-[var(--text-muted)]">
+                                    {cb.estimatedDuration}
+                                  </p>
+                                </div>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Stories Preview */}
+                    {selectedBriefing.stories && selectedBriefing.stories.length > 0 && (
+                      <div>
+                        <p className="text-sm text-[var(--text-muted)] mb-2">Headlines</p>
+                        <ul className="space-y-1.5">
+                          {selectedBriefing.stories.slice(0, 5).map((story, i) => (
+                            <li key={i} className="text-sm text-[var(--text-secondary)] truncate">
+                              • {story.title}
+                            </li>
+                          ))}
+                          {selectedBriefing.stories.length > 5 && (
+                            <li className="text-sm text-[var(--text-muted)]">
+                              +{selectedBriefing.stories.length - 5} more stories
+                            </li>
+                          )}
+                        </ul>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  /* Read Mode */
+                  <>
+                    {/* Full Briefing Script */}
+                    {selectedBriefing.fullBriefing?.script ? (
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-[var(--text-muted)]">
+                            ~{Math.ceil((selectedBriefing.fullBriefing.script.length || 0) / 1000)} min read
+                          </span>
+                        </div>
+                        <p className="text-[var(--text-secondary)] leading-relaxed whitespace-pre-line">
+                          {selectedBriefing.fullBriefing.script}
+                        </p>
+                      </div>
+                    ) : (
+                      <p className="text-[var(--text-muted)] italic text-center py-4">
+                        Full briefing text not available for this date.
+                      </p>
+                    )}
+
+                    {/* Category Briefs - Read Mode */}
+                    {selectedBriefing.categoryBriefs && selectedBriefing.categoryBriefs.length > 0 && (
+                      <div className="space-y-3 pt-4 border-t border-[var(--border-subtle)]">
+                        <p className="text-sm text-[var(--text-muted)]">Category Briefs</p>
+                        {selectedBriefing.categoryBriefs.map((cb) => {
+                          const color = getCategoryColor(cb.category);
+                          return (
+                            <details key={cb.category} className="group">
+                              <summary
+                                className="p-3 bg-[var(--bg-elevated)] rounded-lg cursor-pointer list-none hover:bg-[var(--bg-card)] transition-colors"
+                                style={{ borderLeft: `3px solid ${color}` }}
+                              >
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-lg">{cb.emoji}</span>
+                                    <span className="text-sm font-medium text-white">{cb.displayName}</span>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-xs text-[var(--text-muted)]">
+                                      ~{Math.ceil((cb.script?.length || 0) / 1000)} min
+                                    </span>
+                                    <svg className="w-4 h-4 text-[var(--text-muted)] group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                  </div>
+                                </div>
+                              </summary>
+                              <div className="p-3 pt-2">
+                                {cb.script ? (
+                                  <p className="text-sm text-[var(--text-secondary)] leading-relaxed whitespace-pre-line">
+                                    {cb.script}
+                                  </p>
+                                ) : (
+                                  <p className="text-sm text-[var(--text-muted)] italic">
+                                    Text not available.
+                                  </p>
+                                )}
+                              </div>
+                            </details>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             ) : (

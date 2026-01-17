@@ -38,4 +38,4 @@ Thumbs.db
 public/audio/*.mp3
 
 # Data files (generated)
-data/briefings/*.json
+data/briefings/*.jsontsconfig.tsbuildinfo

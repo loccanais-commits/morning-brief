@@ -21,7 +21,9 @@ const CRON_SECRET = process.env.CRON_SECRET;
 // Gera o texto do tweet baseado no briefing
 function generateTweetText(briefing: {
   title?: string;
+  // Suporta estrutura antiga (categories) e nova (categoryBriefs)
   categories?: Array<{ id: string; title?: string; headline?: string }>;
+  categoryBriefs?: Array<{ category: string; displayName: string; emoji?: string; headline?: string }>;
 }): string {
   const categoryEmojis: Record<string, string> = {
     china: "🇨🇳",
@@ -34,19 +36,36 @@ function generateTweetText(briefing: {
     tech: "🤖",
   };
 
-  // Pega até 4 headlines das categorias
-  const headlines = (briefing.categories || [])
-    .slice(0, 4)
-    .map((cat) => {
-      const emoji = categoryEmojis[cat.id] || "📰";
-      const headline = cat.title || cat.headline || "";
-      // Trunca headline se muito longa
-      const truncated = headline.length > 45 
-        ? headline.substring(0, 42) + "..." 
-        : headline;
-      return `${emoji} ${truncated}`;
-    })
-    .join("\n");
+  // Tenta usar categoryBriefs (nova estrutura) ou categories (antiga)
+  let headlines = "";
+
+  if (briefing.categoryBriefs && briefing.categoryBriefs.length > 0) {
+    // Nova estrutura
+    headlines = briefing.categoryBriefs
+      .slice(0, 4)
+      .map((cb) => {
+        const emoji = cb.emoji || categoryEmojis[cb.category] || "📰";
+        const headline = cb.headline || cb.displayName || "";
+        const truncated = headline.length > 45
+          ? headline.substring(0, 42) + "..."
+          : headline;
+        return `${emoji} ${truncated}`;
+      })
+      .join("\n");
+  } else if (briefing.categories && briefing.categories.length > 0) {
+    // Estrutura antiga (fallback)
+    headlines = briefing.categories
+      .slice(0, 4)
+      .map((cat) => {
+        const emoji = categoryEmojis[cat.id] || "📰";
+        const headline = cat.title || cat.headline || "";
+        const truncated = headline.length > 45
+          ? headline.substring(0, 42) + "..."
+          : headline;
+        return `${emoji} ${truncated}`;
+      })
+      .join("\n");
+  }
 
   if (headlines) {
     return `🌅 Your Morning Brief is ready!

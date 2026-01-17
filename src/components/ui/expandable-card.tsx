@@ -24,6 +24,28 @@ interface ExpandableCardProps {
   getCategoryPillClass: (category: string) => string;
 }
 
+// Fallback images por categoria
+const FALLBACK_IMAGES: Record<string, string> = {
+  china: "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800&h=400&fit=crop",
+  russia: "https://images.unsplash.com/photo-1547448415-e9f5b28e570d?w=800&h=400&fit=crop",
+  middleeast: "https://images.unsplash.com/photo-1466442929976-97f336a657be?w=800&h=400&fit=crop",
+  economy: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800&h=400&fit=crop",
+  defense: "https://images.unsplash.com/photo-1569437061241-a848be43cc82?w=800&h=400&fit=crop",
+  technology: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&h=400&fit=crop",
+  default: "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&h=400&fit=crop",
+};
+
+// Validar URL de imagem
+function isValidImageUrl(url: string | undefined): boolean {
+  if (!url || url.trim() === "") return false;
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === "http:" || parsed.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
 export function ExpandableCard({
   story,
   index,
@@ -32,6 +54,7 @@ export function ExpandableCard({
   getCategoryPillClass,
 }: ExpandableCardProps) {
   const [isActive, setIsActive] = useState(false);
+  const [imageError, setImageError] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const id = useId();
 
@@ -54,8 +77,13 @@ export function ExpandableCard({
 
   useOutsideClick(ref, () => setIsActive(false));
 
-  // Placeholder image if none provided
-  const imageUrl = story.imageUrl || `https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&h=400&fit=crop`;
+  // Determinar URL da imagem com fallback robusto
+  const getFallbackImage = () => FALLBACK_IMAGES[story.category?.toLowerCase()] || FALLBACK_IMAGES.default;
+  const imageUrl = (isValidImageUrl(story.imageUrl) && !imageError)
+    ? story.imageUrl!
+    : getFallbackImage();
+
+  const handleImageError = () => setImageError(true);
 
   return (
     <>
@@ -98,6 +126,7 @@ export function ExpandableCard({
                   src={imageUrl}
                   alt={story.title}
                   className="w-full h-64 md:h-80 object-cover"
+                  onError={handleImageError}
                 />
               </motion.div>
 
@@ -200,6 +229,7 @@ export function ExpandableCard({
               src={imageUrl}
               alt={story.title}
               className="w-20 h-20 md:w-24 md:h-24 rounded-xl object-cover"
+              onError={handleImageError}
             />
           </motion.div>
 

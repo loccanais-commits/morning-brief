@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { usePlayer } from "@/contexts/PlayerContext";
 import Loader from "@/components/Loader";
 
@@ -121,8 +122,9 @@ function getCategoryColor(category: string): string {
 }
 
 export default function ArchivePage() {
+  const router = useRouter();
   const { play, isPlaying, currentTrack, toggle } = usePlayer();
-  
+
   const [loading, setLoading] = useState(true);
   const [briefings, setBriefings] = useState<BriefingPreview[]>([]);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
@@ -321,19 +323,18 @@ export default function ArchivePage() {
               {calendarDays.map((day, index) => (
                 <button
                   key={index}
-                  onClick={() => day.hasBriefing && setSelectedDate(day.dateString)}
+                  onClick={() => day.hasBriefing && router.push(`/archive/${day.dateString}`)}
                   disabled={!day.hasBriefing}
                   className={`
                     aspect-square p-1 md:p-2 rounded-lg text-xs md:text-sm font-medium transition-all relative
                     ${!day.isCurrentMonth ? "opacity-30" : ""}
                     ${day.isToday ? "ring-2 ring-[var(--accent-primary)]" : ""}
-                    ${selectedDate === day.dateString ? "bg-[var(--accent-primary)] text-black" : ""}
-                    ${day.hasBriefing && selectedDate !== day.dateString ? "bg-[var(--bg-elevated)] hover:bg-[var(--bg-card)] cursor-pointer" : ""}
-                    ${!day.hasBriefing ? "cursor-default text-[var(--text-muted)]" : "text-white"}
+                    ${day.hasBriefing ? "bg-[var(--bg-elevated)] hover:bg-[var(--bg-card)] cursor-pointer text-white" : ""}
+                    ${!day.hasBriefing ? "cursor-default text-[var(--text-muted)]" : ""}
                   `}
                 >
                   {day.date.getDate()}
-                  {day.hasBriefing && selectedDate !== day.dateString && (
+                  {day.hasBriefing && (
                     <div className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 md:w-1.5 md:h-1.5 rounded-full bg-[var(--accent-primary)]" />
                   )}
                 </button>
@@ -507,7 +508,7 @@ export default function ArchivePage() {
         {/* Recent Briefings List */}
         <section className="mt-12">
           <h2 className="text-xl font-semibold text-white mb-6">Recent Briefings</h2>
-          
+
           {briefings.length === 0 ? (
             <p className="text-[var(--text-muted)]">No briefings available yet.</p>
           ) : (
@@ -515,10 +516,8 @@ export default function ArchivePage() {
               {briefings.slice(0, 12).map((briefing) => (
                 <button
                   key={briefing.date}
-                  onClick={() => setSelectedDate(briefing.date)}
-                  className={`card p-4 text-left hover:border-[var(--accent-primary)] transition-colors ${
-                    selectedDate === briefing.date ? "border-[var(--accent-primary)]" : ""
-                  }`}
+                  onClick={() => router.push(`/archive/${briefing.date}`)}
+                  className="card p-4 text-left hover:border-[var(--accent-primary)] transition-colors"
                 >
                   <p className="text-sm text-[var(--accent-primary)] font-medium">
                     {new Date(briefing.date + "T12:00:00").toLocaleDateString("en-US", {

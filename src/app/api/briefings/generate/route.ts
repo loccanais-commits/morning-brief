@@ -93,14 +93,14 @@ export async function POST(request: Request) {
     });
     
     if (elevenLabsAudio) {
-      fullAudioUrl = await saveAudioFile(`${today}-full.mp3`, elevenLabsAudio);
+      fullAudioUrl = await saveAudioFile(`${targetDate}-full.mp3`, elevenLabsAudio);
       console.log(`[Generate] Full audio saved: ${fullAudioUrl}`);
     } else {
       // Fallback para Polly se ElevenLabs falhar
       console.log("[Generate] ElevenLabs failed, using Polly for full...");
       const pollyAudio = await generatePollyAudio(fullTtsText);
       if (pollyAudio) {
-        fullAudioUrl = await saveAudioFile(`${today}-full.mp3`, pollyAudio);
+        fullAudioUrl = await saveAudioFile(`${targetDate}-full.mp3`, pollyAudio);
       }
     }
 
@@ -116,7 +116,7 @@ export async function POST(request: Request) {
         const pollyAudio = await generatePollyAudio(categoryTtsText);
         
         if (pollyAudio) {
-          audioUrl = await saveAudioFile(`${today}-${brief.category}.mp3`, pollyAudio);
+          audioUrl = await saveAudioFile(`${targetDate}-${brief.category}.mp3`, pollyAudio);
           console.log(`[Generate] ${brief.displayName} audio saved: ${audioUrl}`);
         }
       } catch (error) {

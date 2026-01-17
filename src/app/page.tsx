@@ -105,6 +105,8 @@ export default function HomePage() {
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [showAllStories, setShowAllStories] = useState(false);
+  const [readMode, setReadMode] = useState(false);
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
 
   // Carregar favoritos
   useEffect(() => {
@@ -245,6 +247,17 @@ export default function HomePage() {
     }
   };
 
+  // Toggle category expansion in read mode
+  const toggleCategoryExpand = (category: string) => {
+    const newExpanded = new Set(expandedCategories);
+    if (newExpanded.has(category)) {
+      newExpanded.delete(category);
+    } else {
+      newExpanded.add(category);
+    }
+    setExpandedCategories(newExpanded);
+  };
+
   const greeting = getGreeting();
   const today = new Date().toLocaleDateString("en-US", {
     weekday: "long",
@@ -374,52 +387,167 @@ export default function HomePage() {
           </h1>
         </div>
 
+        {/* Listen/Read Toggle */}
+        <div className="flex items-center justify-center gap-4 mb-6">
+          <div className="flex bg-[var(--bg-elevated)] rounded-xl p-1">
+            <button
+              onClick={() => setReadMode(false)}
+              className={`px-4 py-2 rounded-lg font-medium transition-all flex items-center gap-2 ${
+                !readMode
+                  ? "bg-[var(--accent-primary)] text-black"
+                  : "text-[var(--text-muted)] hover:text-white"
+              }`}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 3c-4.97 0-9 4.03-9 9v7c0 1.1.9 2 2 2h4v-8H5v-1c0-3.87 3.13-7 7-7s7 3.13 7 7v1h-4v8h4c1.1 0 2-.9 2-2v-7c0-4.97-4.03-9-9-9z"/>
+              </svg>
+              Listen
+            </button>
+            <button
+              onClick={() => setReadMode(true)}
+              className={`px-4 py-2 rounded-lg font-medium transition-all flex items-center gap-2 ${
+                readMode
+                  ? "bg-[var(--accent-primary)] text-black"
+                  : "text-[var(--text-muted)] hover:text-white"
+              }`}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1zm0 13.5c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V8c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5v11.5z"/>
+              </svg>
+              Read
+            </button>
+          </div>
+        </div>
+
         {/* Full Briefing Card */}
         <section className="card p-6 md:p-8 mb-8 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-[var(--accent-primary)]/10 to-transparent pointer-events-none" />
-          
-          <div className="relative flex flex-col md:flex-row items-center gap-6">
-            <button
-              onClick={handlePlayFull}
-              disabled={!briefing.fullBriefing?.audioUrl}
-              className="w-24 h-24 md:w-32 md:h-32 rounded-full bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-secondary)] flex items-center justify-center hover:scale-105 transition-transform disabled:opacity-50 flex-shrink-0 shadow-2xl shadow-[var(--accent-primary)]/30"
-            >
-              {isFullPlaying ? (
-                <svg className="w-12 h-12 text-black" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
-                </svg>
-              ) : (
-                <svg className="w-12 h-12 text-black ml-2" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M8 5v14l11-7z"/>
-                </svg>
-              )}
-            </button>
 
-            <div className="flex-1 text-center md:text-left">
-              <span className="inline-block px-3 py-1 bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] text-xs font-bold uppercase tracking-wider rounded-full mb-3">
-                {isFullPlaying ? "Now Playing" : "Full Briefing"}
-              </span>
-              
-              <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
-                {briefing.fullBriefing.headline}
-              </h2>
-              
-              <p className="text-[var(--text-secondary)] mb-3">
-                {briefing.meta.totalStories} stories • {briefing.fullBriefing.duration} minutes • All categories
-              </p>
-              
-              <div className="flex flex-wrap gap-2 justify-center md:justify-start">
-                {briefing.categoryBriefs.map(cb => (
-                  <span key={cb.category} className="text-lg">
-                    {cb.emoji}
-                  </span>
-                ))}
+          {!readMode ? (
+            /* LISTEN MODE */
+            <div className="relative flex flex-col md:flex-row items-center gap-6">
+              <button
+                onClick={handlePlayFull}
+                disabled={!briefing.fullBriefing?.audioUrl}
+                className="w-24 h-24 md:w-32 md:h-32 rounded-full bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-secondary)] flex items-center justify-center hover:scale-105 transition-transform disabled:opacity-50 flex-shrink-0 shadow-2xl shadow-[var(--accent-primary)]/30"
+              >
+                {isFullPlaying ? (
+                  <svg className="w-12 h-12 text-black" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+                  </svg>
+                ) : (
+                  <svg className="w-12 h-12 text-black ml-2" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z"/>
+                  </svg>
+                )}
+              </button>
+
+              <div className="flex-1 text-center md:text-left">
+                <span className="inline-block px-3 py-1 bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] text-xs font-bold uppercase tracking-wider rounded-full mb-3">
+                  {isFullPlaying ? "Now Playing" : "Full Briefing"}
+                </span>
+
+                <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
+                  {briefing.fullBriefing.headline}
+                </h2>
+
+                <p className="text-[var(--text-secondary)] mb-3">
+                  {briefing.meta.totalStories} stories • {briefing.fullBriefing.duration} minutes • All categories
+                </p>
+
+                <div className="flex flex-wrap gap-2 justify-center md:justify-start">
+                  {briefing.categoryBriefs.map(cb => (
+                    <span key={cb.category} className="text-lg">
+                      {cb.emoji}
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
+          ) : (
+            /* READ MODE */
+            <div className="relative">
+              <span className="inline-block px-3 py-1 bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] text-xs font-bold uppercase tracking-wider rounded-full mb-4">
+                Full Briefing
+              </span>
+
+              <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
+                {briefing.fullBriefing.headline}
+              </h2>
+
+              <p className="text-sm text-[var(--text-muted)] mb-4">
+                {briefing.meta.totalStories} stories • {briefing.fullBriefing.duration} min read
+              </p>
+
+              {briefing.fullBriefing.script && (
+                <div className="prose prose-invert max-w-none">
+                  <p className="text-[var(--text-secondary)] leading-relaxed whitespace-pre-line">
+                    {briefing.fullBriefing.script}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
         </section>
 
-        {/* Category Briefs Grid */}
+        {/* Category Briefs - Read Mode shows as accordions */}
+        {readMode && (
+          <section className="mb-8">
+            <span className="section-label mb-4 block">Category Briefs</span>
+            <div className="space-y-3">
+              {briefing.categoryBriefs.map(cb => {
+                const isExpanded = expandedCategories.has(cb.category);
+                const color = getCategoryColor(cb.category);
+
+                return (
+                  <div
+                    key={cb.category}
+                    className="card overflow-hidden"
+                    style={{ borderLeftWidth: "4px", borderLeftColor: color }}
+                  >
+                    <button
+                      onClick={() => toggleCategoryExpand(cb.category)}
+                      className="w-full p-4 flex items-center justify-between hover:bg-[var(--bg-elevated)] transition-colors"
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-2xl">{cb.emoji}</span>
+                        <div className="text-left">
+                          <h3 className="font-semibold text-white">{cb.displayName}</h3>
+                          <p className="text-sm text-[var(--text-muted)]">{cb.headline}</p>
+                        </div>
+                      </div>
+                      <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        className={`text-[var(--text-muted)] transition-transform ${isExpanded ? "rotate-180" : ""}`}
+                      >
+                        <path d="m6 9 6 6 6-6"/>
+                      </svg>
+                    </button>
+
+                    {isExpanded && (
+                      <div className="px-4 pb-4 pt-2 border-t border-[var(--border-subtle)]">
+                        <p className="text-[var(--text-secondary)] leading-relaxed whitespace-pre-line text-sm">
+                          {cb.headline}
+                        </p>
+                        <p className="text-xs text-[var(--text-muted)] mt-3">
+                          {cb.storyCount} stories • {cb.estimatedDuration}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
+        {/* Category Briefs Grid - Hidden in Read Mode */}
+        {!readMode && (
         <section className="mb-10">
           <div className="flex items-center justify-between mb-4">
             <span className="section-label">Category Briefs</span>
@@ -477,6 +605,7 @@ export default function HomePage() {
             })}
           </div>
         </section>
+        )}
 
         {/* Category Filter */}
         <section className="mb-6">

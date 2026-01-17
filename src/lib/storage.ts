@@ -169,6 +169,12 @@ export async function hasTodayBriefing(): Promise<boolean> {
   return briefing !== null;
 }
 
+// Verificar se existe briefing para uma data específica
+export async function hasBriefingForDate(date: string): Promise<boolean> {
+  const briefing = await loadDailyBriefing(date);
+  return briefing !== null;
+}
+
 // ============================================
 // AUDIO STORAGE
 // ============================================

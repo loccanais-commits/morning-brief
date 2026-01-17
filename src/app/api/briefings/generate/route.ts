@@ -31,19 +31,20 @@ export const maxDuration = 120; // 2 min timeout para processar tudo
 
 export async function POST(request: Request) {
   const startTime = Date.now();
-  
+
   try {
     const body = await request.json().catch(() => ({}));
     const voiceId = body.voice || VOICES.george;
     const modelId = body.model || MODELS.flash;
-    
-    const today = new Date().toISOString().split("T")[0];
-    
-    console.log(`[Generate] Starting multi-category generation for ${today}...`);
+
+    // Support custom date for historical generation
+    const targetDate = body.date || new Date().toISOString().split("T")[0];
+
+    console.log(`[Generate] Starting multi-category generation for ${targetDate}...`);
 
     // === STEP 1: Fetch ALL Categories ===
     console.log("[Generate] Step 1: Fetching all categories (18 requests)...");
-    const { byCategory, all } = await fetchAllCategoriesNews();
+    const { byCategory, all } = await fetchAllCategoriesNews(body.date ? targetDate : undefined);
     
     const totalArticles = all.length;
     if (totalArticles === 0) {
@@ -150,7 +151,7 @@ export async function POST(request: Request) {
     console.log("[Generate] Step 6: Saving...");
     
     const dailyBriefing: DailyBriefing = {
-      date: today,
+      date: targetDate,
       generatedAt: new Date().toISOString(),
       
       fullBriefing: {
@@ -178,7 +179,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       success: true,
-      date: today,
+      date: targetDate,
       processingTime: `${elapsed}s`,
       briefing: {
         headline: dailyBriefing.fullBriefing.headline,
@@ -188,6 +189,7 @@ export async function POST(request: Request) {
         categoryBriefs: categoryBriefsWithAudio.map(cb => ({
           category: cb.category,
           displayName: cb.displayName,
+          emoji: cb.emoji,
           headline: cb.headline,
           duration: cb.estimatedDuration,
           storyCount: cb.storyCount,

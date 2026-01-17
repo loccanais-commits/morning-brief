@@ -99,17 +99,31 @@ export type CategoryName = keyof typeof CATEGORIES;
 /**
  * Busca notícias de TODAS as categorias
  * Total: 18 requests (3 por categoria × 6 categorias)
+ * @param targetDate - Optional: fetch news from a specific date (for historical generation)
  */
-export async function fetchAllCategoriesNews(): Promise<{
+export async function fetchAllCategoriesNews(targetDate?: string): Promise<{
   byCategory: Record<CategoryName, NewsArticle[]>;
   all: NewsArticle[];
 }> {
   const apiKey = process.env.THENEWSAPI_KEY;
   if (!apiKey) throw new Error("THENEWSAPI_KEY not configured");
 
-  const yesterday = new Date();
-  yesterday.setHours(yesterday.getHours() - 24);
-  const publishedAfter = yesterday.toISOString().slice(0, 19);
+  let publishedAfter: string;
+  let publishedBefore: string | undefined;
+
+  if (targetDate) {
+    // For historical generation: fetch news from that specific date
+    const targetDateObj = new Date(targetDate + "T00:00:00Z");
+    const dayBefore = new Date(targetDateObj);
+    dayBefore.setDate(dayBefore.getDate() - 1);
+    publishedAfter = dayBefore.toISOString().slice(0, 19);
+    publishedBefore = new Date(targetDate + "T23:59:59Z").toISOString().slice(0, 19);
+  } else {
+    // Default: last 24 hours
+    const yesterday = new Date();
+    yesterday.setHours(yesterday.getHours() - 24);
+    publishedAfter = yesterday.toISOString().slice(0, 19);
+  }
 
   console.log(`[NewsAPI] Starting multi-category fetch (18 requests)...`);
 
@@ -145,6 +159,11 @@ export async function fetchAllCategoriesNews(): Promise<{
           sort: "published_at",
           limit: "50",
         });
+
+        // Add published_before for historical queries
+        if (publishedBefore) {
+          params.set("published_before", publishedBefore);
+        }
 
         const response = await fetch(`${API_BASE}/top?${params}`, {
           headers: { "Accept": "application/json" },

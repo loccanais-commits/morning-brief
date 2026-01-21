@@ -13,10 +13,14 @@
  */
 import { NextResponse } from "next/server";
 import { hasTodayBriefing } from "@/lib/storage";
+import { generateDailyBriefing } from "@/lib/generate-briefing";
 import { getAllPushSubscriptions, isSupabaseConfigured } from "@/lib/supabase";
 import { sendPushToAll, createDailyBriefingPayload, isPushConfigured } from "@/lib/push-notifications";
+import { postTweet, isTwitterConfigured } from "@/lib/twitter";
 
 const CRON_SECRET = process.env.CRON_SECRET;
+
+export const maxDuration = 120; // 2 min timeout
 
 // Gera o texto do tweet baseado no briefing
 function generateTweetText(briefing: {
@@ -113,24 +117,15 @@ export async function GET(request: Request) {
       });
     }
 
-    // Chamar a API de geração
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ||
-                    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` :
-                    "http://localhost:3000");
-
-    const generateResponse = await fetch(`${baseUrl}/api/briefings/generate`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ stories: 10 }),
-    });
-
-    const result = await generateResponse.json();
+    // Gerar briefing diretamente (sem HTTP call)
+    console.log("[Cron] Generating briefing...");
+    const result = await generateDailyBriefing();
 
     if (!result.success) {
       throw new Error(result.error || "Generation failed");
     }
 
-    console.log(`[Cron] Briefing generated: ${result.briefing?.title}`);
+    console.log(`[Cron] Briefing generated: ${result.briefing?.headline}`);
 
     // === ENVIAR PUSH NOTIFICATIONS ===
     let pushResults = null;
@@ -138,7 +133,7 @@ export async function GET(request: Request) {
       console.log("[Cron] Sending push notifications...");
       const subscriptions = await getAllPushSubscriptions();
       if (subscriptions.length > 0) {
-        const payload = createDailyBriefingPayload(result.briefing?.title);
+        const payload = createDailyBriefingPayload(result.briefing?.headline);
         pushResults = await sendPushToAll(subscriptions, payload);
         console.log(`[Cron] Push sent: ${pushResults.sent} success, ${pushResults.failed} failed`);
       } else {
@@ -148,31 +143,24 @@ export async function GET(request: Request) {
 
     // === POSTAR NO TWITTER/X ===
     let twitterResult = null;
-    if (process.env.TWITTER_API_KEY && process.env.TWITTER_ACCESS_TOKEN) {
+    if (isTwitterConfigured() && result.briefing) {
       console.log("[Cron] Posting to Twitter...");
       try {
         const tweetText = generateTweetText(result.briefing);
-        
-        const twitterResponse = await fetch(`${baseUrl}/api/twitter/post`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text: tweetText }),
-        });
+        const tweetResponse = await postTweet(tweetText);
 
-        const twitterData = await twitterResponse.json();
-        
-        if (twitterData.success) {
-          console.log(`[Cron] Tweet posted: ${twitterData.url}`);
+        if (tweetResponse.success) {
+          console.log(`[Cron] Tweet posted: ${tweetResponse.url}`);
           twitterResult = {
             success: true,
-            tweetId: twitterData.tweetId,
-            url: twitterData.url,
+            tweetId: tweetResponse.tweetId,
+            url: tweetResponse.url,
           };
         } else {
-          console.error("[Cron] Twitter error:", twitterData.error);
+          console.error("[Cron] Twitter error:", tweetResponse.error);
           twitterResult = {
             success: false,
-            error: twitterData.error,
+            error: tweetResponse.error,
           };
         }
       } catch (twitterError) {
@@ -193,7 +181,7 @@ export async function GET(request: Request) {
       success: true,
       message: "Daily briefing generated",
       date: result.date,
-      headline: result.briefing?.title,
+      headline: result.briefing?.headline,
       processingTime: `${elapsed}s`,
       push: pushResults ? {
         sent: pushResults.sent,

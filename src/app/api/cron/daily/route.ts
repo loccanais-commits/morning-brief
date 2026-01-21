@@ -143,7 +143,7 @@ export async function GET(request: Request) {
 
     // === POSTAR NO TWITTER/X ===
     let twitterResult = null;
-    if (isTwitterConfigured()) {
+    if (isTwitterConfigured() && result.briefing) {
       console.log("[Cron] Posting to Twitter...");
       try {
         const tweetText = generateTweetText(result.briefing);
